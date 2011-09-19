@@ -1,0 +1,70 @@
+-- A description in English of your data structure;
+    My data structure is simply 4 arrays of 9 spaces.  Each space represents one of the triangles on the face,
+    like so:
+      0
+     123
+    45678
+
+    Now, I have 4 faces, but how are they arranged in relation to one another?  Well, like this:
+
+             [Pole#0]
+       [Face0]   +  [Face2]
+        45120    0   02378
+         673    123   156
+          8    45678   4
+              [Face1]
+    [Pole#1]+         +[Pole#2]
+              [Face3]
+               87654
+                321
+                 0
+                 +
+             [Pole#3] 
+
+    Incidentally, this unfolded view is what I use for my output as well.
+
+
+-- an example of the GUI output;
+    When you call the print method on a Pyraminx right after instantiation, 
+    this is the output that you get:
+
+                  [Pole#0]
+           [Face0]   +  [Face2]
+            00000    1   22222
+             000    111   222
+              0    11111   2
+                  [Face1]
+        [Pole#1]+         +[Pole#2]
+                  [Face3]
+               33333
+                    333
+                     3
+                     +
+                  [Pole#3]   
+
+-- a description of the randomizer;
+    Well, the code is pretty straight forward:
+        def random_moves(amount, use_clockwise=false)
+            amount.times do 
+                self.rotate rand(4), rand(3), use_clockwise
+            end
+        end
+    Basically you give it the amount of random moves you want, and it uses 
+    ruby's built in rand function to generate random rotations by selecting
+    a random pole and level.  The default is to use counter clockwise rotations, 
+    since the default of the rotate method is clockwise.  This means the solver 
+    code won't have to worry about direction, unless the coder just feels like it.  
+
+-- your heuristic, clearly described and justified;
+    The heuristic I have come up with is simple.  Each side starts out with a color.  
+    After it is randomized, you count how many pieces on that face that are not the 
+    initial color, and add that up for each face.  If we are working to solve the
+    puzzle, this should be ever decreasing.  The only potiential problem I see
+    is that sometimes you might need to make a move that increases this function,
+    but adding in the path cost should take care of that nicely.
+
+-- a statement of what you learned from this assignment.
+    If you absolutely know your code won't need something, and you have nothing to
+    really gain from coding it, don't implement that something.  It wastes time 
+    that's probably needed for other things.
+
