@@ -12,6 +12,12 @@ class Pyraminx
 			@faces[i] = Array.new((@edge_width*2)-1)
             @faces[i].map! {|space| i}
         end
+=begin
+        (0...9).each do |j|
+            @faces[i][j] = j
+        end
+        print
+=end
     end
 
 	def rotate!(pole, level, is_clockwise=true)
@@ -35,12 +41,6 @@ class Pyraminx
             end
         end
 	end
-
-    def random_moves!(amount, use_clockwise=false)
-        amount.times do 
-            self.rotate! rand(4), rand(3), use_clockwise
-        end
-    end
 
     #yay using regex to keep spacings...
     def print
@@ -129,34 +129,26 @@ private
 	#All of these are listed in clockwise order.
 	def spaces_to_rotate(pole, level)
         #log_debug "when #{( (pole*3) + level )}"
-		case( (pole*3) + level )
+		case( (pole*2) + level )
 		when 0  #pole=0, level=0
 			[[2,[0]],        [1,[0]],        [0,[0]]]
 		when 1  #pole=0, level=1
 			[[2,[1,2,3]],    [1,[1,2,3]],    [0,[1,2,3]]]
-		when 2  #pole=0, level=2
-			[[2,[4,5,6,7,8]],[1,[4,5,6,7,8]],[0,[4,5,6,7,8]]]
 
-		when 3  #pole=1, level=0
+		when 2  #pole=1, level=0
 			[[0,[8]],        [1,[4]],        [3,[8]]]
-		when 4  #pole=1, level=1
+		when 3  #pole=1, level=1
 			[[0,[6,7,3]],    [1,[1,5,6]],    [3,[6,7,3]]]
-		when 5  #pole=1, level=2
-			[[0,[4,5,1,2,0]],[1,[0,2,3,7,8]],[3,[4,5,1,2,0]]]
 
-		when 6  #pole=2, level=0
+		when 4  #pole=2, level=0
 			[[3,[4]],        [1,[8]],        [2,[4]]]
-		when 7  #pole=2, level=1
+		when 5  #pole=2, level=1
 			[[3,[1,5,6]],    [1,[6,7,3]],    [2,[1,5,6]]]
-		when 8  #pole=2, level=2
-			[[3,[0,2,3,7,8]],[1,[4,5,1,2,0]],[2,[0,2,3,7,8]]]
 
-		when 9  #pole=3, level=0
+		when 6  #pole=3, level=0
 			[[0,[4]],        [3,[0]],        [2,[8]]]
-		when 10 #pole=3, level=1
+		when 7 #pole=3, level=1
 			[[0,[6,5,1]],    [3,[1,2,3]],    [2,[3,7,6]]]
-		when 11 #pole=3, level=2
-			[[0,[8,7,3,2,0]],[3,[4,5,6,7,8]],[2,[0,2,1,5,4]]]
 		end
 	end
 end

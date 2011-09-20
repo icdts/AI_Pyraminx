@@ -9,41 +9,75 @@ class Pyraminx
         return [
             {:pole=>0, :level=>0},
             {:pole=>0, :level=>1},
-            {:pole=>0, :level=>2},
             {:pole=>1, :level=>0},
             {:pole=>1, :level=>1},
-            {:pole=>1, :level=>2},
             {:pole=>2, :level=>0},
             {:pole=>2, :level=>1},
-            {:pole=>2, :level=>2},
             {:pole=>3, :level=>0},
             {:pole=>3, :level=>1},
-            {:pole=>3, :level=>2},
         ]
     end
     
     def heuristic
-        tips = 0
-        edges = 0
-        centers = 0
+        tip_and_center_costs = [
+            {:indice=>0,
+             :costs=>[
+                {:face=>1,:indice=>0,:cost=>2},
+                {:face=>2,:indice=>0,:cost=>1}
+             ]
+            },
+            {:indice=>2,
+             :costs=>[
+                {:face=>1,:indice=>2,:cost=>2},
+                {:face=>2,:indice=>2,:cost=>1}
+             ]
+            },
+            {:indice=>4,
+             :costs=>[
+                {:face=>3,:indice=>0,:cost=>2},
+                {:face=>2,:indice=>8,:cost=>1}
+             ]
+            },
+            {:indice=>5,
+             :costs=>[
+                {:face=>1,:indice=>5,:cost=>2},
+                {:face=>3,:indice=>7,:cost=>1}
+             ]
+            },
+            {:indice=>7,
+             :costs=>[
+                {:face=>1,:indice=>5,:cost=>2},
+                {:face=>3,:indice=>7,:cost=>1}
+             ]
+            },
+            {:indice=>8,
+             :costs=>[
+                {:face=>1,:indice=>4,:cost=>2},
+                {:face=>3,:indice=>8,:cost=>1}
+             ]
+            },
+        ]
 
-        (0...4).each do |i|
-            #points easiest to solve
-            [0,4,9].each do |k|
-                tips+= 1 if @faces[i][k] != i
-            end
+        count = 0
 
-            #next is edges
-            [1,3,6].each do |k|
-                edges += 4 if @faces[i][k] != i
-            end
-
-            #finally centers
-            [2,5,7].each do |k|
-                centers += 2 if @faces[i][k] != i
+        #tips and centers first, just count from face 0, others follow more-or-less
+        tip_and_center_costs.each do |data|
+            if @faces[0][data[:indice]] != 0
+                data[:costs].each do |cost|
+                    if @faces[cost[:face]][cost[:indice]] == 0
+                        count += cost[:cost]
+                    end
+                end
             end
         end
-        return (tips + edges + centers)/3
+
+        #next is edges
+        (0...4).each do |i|
+            [1,3,6].each do |k|
+                count += 1 if @faces[i][k] != i
+            end
+        end
+        return count 
     end
 end
 
@@ -89,10 +123,10 @@ class Solver
             @puzzle = q.pop
             loops += 1
 
-            break if @puzzle.moves_to_get_here.length > @random_moves.length
+            #break if @puzzle.moves_to_get_here.length > @random_moves.length
         end
 
-        return "#{loops}    :    #{@puzzle.moves_to_get_here}"
+        return "#{loops}    :    #{@puzzle.moves_to_get_here.length}"
     end
 
     def generate_children
@@ -117,7 +151,8 @@ k = 4
 solver = Solver.new(Pyraminx.new)
 solver.randomize k
 
-puts "#{k}  : " + solver.solve.to_s + " : \n" + solver.random_moves.to_s
+puts "#{k}  : " + solver.solve.to_s + " : \n" + solver.random_moves.length.to_s
+solver.puzzle.print
 =begin
 (4..10).each do |k|
     (0...5).each do
