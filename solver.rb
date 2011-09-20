@@ -19,65 +19,20 @@ class Pyraminx
     end
     
     def heuristic
-        tip_and_center_costs = [
-            {:indice=>0,
-             :costs=>[
-                {:face=>1,:indice=>0,:cost=>2},
-                {:face=>2,:indice=>0,:cost=>1}
-             ]
-            },
-            {:indice=>2,
-             :costs=>[
-                {:face=>1,:indice=>2,:cost=>2},
-                {:face=>2,:indice=>2,:cost=>1}
-             ]
-            },
-            {:indice=>4,
-             :costs=>[
-                {:face=>3,:indice=>0,:cost=>2},
-                {:face=>2,:indice=>8,:cost=>1}
-             ]
-            },
-            {:indice=>5,
-             :costs=>[
-                {:face=>1,:indice=>5,:cost=>2},
-                {:face=>3,:indice=>7,:cost=>1}
-             ]
-            },
-            {:indice=>7,
-             :costs=>[
-                {:face=>1,:indice=>5,:cost=>2},
-                {:face=>3,:indice=>7,:cost=>1}
-             ]
-            },
-            {:indice=>8,
-             :costs=>[
-                {:face=>1,:indice=>4,:cost=>2},
-                {:face=>3,:indice=>8,:cost=>1}
-             ]
-            },
+        count = 0
+        triplets = [
+            {:tip=>0,:center=>2,:edge=>6},
+            {:tip=>4,:center=>5,:edge=>1},
+            {:tip=>8,:center=>7,:edge=>3}
         ]
 
-        count = 0
-
-        #tips and centers first, just count from face 0, others follow more-or-less
-        tip_and_center_costs.each do |data|
-            if @faces[0][data[:indice]] != 0
-                data[:costs].each do |cost|
-                    if @faces[cost[:face]][cost[:indice]] == 0
-                        count += cost[:cost]
-                    end
-                end
-            end
-        end
-
-        #next is edges
         (0...4).each do |i|
-            [1,3,6].each do |k|
-                count += 1 if @faces[i][k] != i
+            triplets.each do |trip|
+                count += 1 if @faces[i][trip[:tip]] != @faces[i][trip[:center]]
+                count += 1 if @faces[i][trip[:edge]] != @faces[i][trip[:center]]
             end
         end
-        return count 
+        return count/2
     end
 end
 
@@ -102,7 +57,7 @@ class Solver
 
             @random_moves ||= []
             @random_moves << current
-            @puzzle.rotate! current[:pole], current[:level]
+            @puzzle.rotate! current[:pole], current[:level], false
 
             old2 = old1
             old1 = current
@@ -114,17 +69,20 @@ class Solver
         @puzzle.moves_to_get_here = []
         loops = 0
         while @puzzle.heuristic != 0
-            puts "#{@puzzle.heuristic} - #{@puzzle.moves_to_get_here.length}"
+            #puts "#{@puzzle.heuristic} - #{@puzzle.moves_to_get_here.length}"
             #puts @puzzle.moves_to_get_here
             generate_children.each do |child|
+                #puts "child cost: #{(child.heuristic + child.moves_to_get_here.length)}"
                 q.push child, (child.heuristic + child.moves_to_get_here.length)
             end
-            q.bubble_up
+            #q.bubble_up
             @puzzle = q.pop
             loops += 1
 
             #break if @puzzle.moves_to_get_here.length > @random_moves.length
         end
+
+        @solving_moves = @puzzle.moves_to_get_here.clone
 
         return "#{loops}    :    #{@puzzle.moves_to_get_here.length}"
     end
@@ -147,19 +105,19 @@ end
 puts "------------------------------------"
 puts "k  : Loops to solve : Moves to solve"
 puts "------------------------------------"
-k = 4 
+=begin
+k = 2 
 solver = Solver.new(Pyraminx.new)
 solver.randomize k
-
+#solver.puzzle.print
 puts "#{k}  : " + solver.solve.to_s + " : \n" + solver.random_moves.length.to_s
-solver.puzzle.print
-=begin
+#solver.puzzle.print
+=end
 (4..10).each do |k|
     (0...5).each do
-        puzzle = Pyraminx.new
-        puzzle.random_moves! k    
+        solver = Solver.new(Pyraminx.new)
+        solver.randomize k
         
-        puts "#{k}  : " + solve(puzzle).to_s
+        puts "#{k}  : " + solver.solve.to_s
     end
 end
-=end

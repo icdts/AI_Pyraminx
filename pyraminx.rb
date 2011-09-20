@@ -40,6 +40,10 @@ class Pyraminx
                 @faces[to_rotate[2][0]][to_rotate[2][1][i]] = tmp
             end
         end
+
+        if level == 1
+            rotate! pole, 0, is_clockwise
+        end
 	end
 
     #yay using regex to keep spacings...
@@ -153,7 +157,9 @@ private
 	end
 end
 
+=begin
 puzzle = Pyraminx.new
 puzzle.print
 puzzle.rotate! 0, 0
 puzzle.print
+=end
