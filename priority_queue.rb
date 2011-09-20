@@ -12,12 +12,12 @@ class PriorityQueue
         @tree = Array.new
     end
 
-    def pop
+    def pop!
         top_item = @tree.shift
         return top_item.obj
     end
 
-    def push(item, priority)
+    def push!(item, priority)
         node=Node.new(item, priority)
         @tree = @tree.push(node)
 
@@ -39,7 +39,7 @@ class PriorityQueue
         end
     end
 
-    def bubble_up
+    def bubble_up!
         (0...@tree.size).to_a.reverse.each do |i|
             parent = (i/2.0).ceil - 1
             if parent >= 0

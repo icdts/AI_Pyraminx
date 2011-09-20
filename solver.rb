@@ -20,29 +20,36 @@ class Pyraminx
     
     def heuristic
         count = 0
+        center_count = 0
         triplets = [
             {:tip=>0,:center=>2,:edge=>6},
             {:tip=>4,:center=>5,:edge=>1},
             {:tip=>8,:center=>7,:edge=>3}
         ]
 
+        centers = [2,5,7]
+
         (0...4).each do |i|
             triplets.each do |trip|
                 count += 1 if @faces[i][trip[:tip]] != @faces[i][trip[:center]]
                 count += 1 if @faces[i][trip[:edge]] != @faces[i][trip[:center]]
             end
+
+            #check that centers all on same face
+            center_count += 1 if @faces[i][2] != @faces[i][5]
+            center_count += 1 if @faces[i][5] != @faces[i][7]
         end
-        return count/2
+        return count/2 + center_count/4
     end
 end
 
 class Solver
-    attr_accessor :puzzle, :random_moves, :solving_moves
+    attr_accessor :puzzle, :random_moves, :solving_moves, :expanded_nodes
     def initialize(puzzle)
         @puzzle = puzzle
     end
     
-    def randomize(k)
+    def randomize!(k)
         possible_moves = @puzzle.all_possible_clockwise_moves
         old1 = nil
         old2 = nil
@@ -64,7 +71,7 @@ class Solver
         end
     end
 
-    def solve
+    def solve!
         q = PriorityQueue.new
         @puzzle.moves_to_get_here = []
         loops = 0
@@ -73,18 +80,17 @@ class Solver
             #puts @puzzle.moves_to_get_here
             generate_children.each do |child|
                 #puts "child cost: #{(child.heuristic + child.moves_to_get_here.length)}"
-                q.push child, (child.heuristic + child.moves_to_get_here.length)
+                q.push! child, (child.heuristic + child.moves_to_get_here.length)
             end
             #q.bubble_up
-            @puzzle = q.pop
+            @puzzle = q.pop!
             loops += 1
 
             #break if @puzzle.moves_to_get_here.length > @random_moves.length
         end
 
         @solving_moves = @puzzle.moves_to_get_here.clone
-
-        return "#{loops}    :    #{@puzzle.moves_to_get_here.length}"
+        @expanded_nodes = loops
     end
 
     def generate_children
@@ -102,9 +108,7 @@ class Solver
         return children
     end
 end
-puts "------------------------------------"
-puts "k  : Loops to solve : Moves to solve"
-puts "------------------------------------"
+puts "k,Loops to solve,Solving Count,Random Moves,Solving Moves"
 =begin
 k = 2 
 solver = Solver.new(Pyraminx.new)
@@ -116,8 +120,9 @@ puts "#{k}  : " + solver.solve.to_s + " : \n" + solver.random_moves.length.to_s
 (4..10).each do |k|
     (0...5).each do
         solver = Solver.new(Pyraminx.new)
-        solver.randomize k
-        
-        puts "#{k}  : " + solver.solve.to_s
+        solver.randomize! k
+        solver.solve!
+
+        puts "#{k},#{solver.expanded_nodes},#{solver.solving_moves.length},\"#{solver.random_moves}\",\"#{solver.solving_moves}\""
     end
 end
