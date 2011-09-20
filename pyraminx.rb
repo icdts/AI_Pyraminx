@@ -78,24 +78,6 @@ class Pyraminx
         return is_solved
     end
 
-    def generate_children
-        children = Array.new
-        (0...12).each do |i|
-            children.push self.create_clone
-            children[i].moves = self.moves + 1
-        end
-
-        count = 0
-        (0..3).each do |i|
-            (0..2).each do |j|
-                children[count].rotate! i, j
-                count += 1
-            end
-        end
-
-        return children
-    end
-
     def heuristic
         tips = 0
         edges = 0
