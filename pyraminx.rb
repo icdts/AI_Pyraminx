@@ -23,12 +23,12 @@ class Pyraminx
        
         (0...num_per_face).each do |i|
             if is_clockwise
-                tmp = @faces[0][to_rotate[0][1][i]]
+                tmp = @faces[to_rotate[0][0]][to_rotate[0][1][i]]
                 @faces[to_rotate[0][0]][to_rotate[0][1][i]] = @faces[to_rotate[2][0]][to_rotate[2][1][i]]
                 @faces[to_rotate[2][0]][to_rotate[2][1][i]] = @faces[to_rotate[1][0]][to_rotate[1][1][i]]
                 @faces[to_rotate[1][0]][to_rotate[1][1][i]] = tmp
             else
-                tmp = @faces[0][to_rotate[0][1][i]]
+                tmp = @faces[to_rotate[0][0]][to_rotate[0][1][i]]
                 @faces[to_rotate[0][0]][to_rotate[0][1][i]] = @faces[to_rotate[1][0]][to_rotate[1][1][i]]
                 @faces[to_rotate[1][0]][to_rotate[1][1][i]] = @faces[to_rotate[2][0]][to_rotate[2][1][i]]
                 @faces[to_rotate[2][0]][to_rotate[2][1][i]] = tmp
@@ -78,29 +78,6 @@ class Pyraminx
         return is_solved
     end
 
-    def heuristic
-        tips = 0
-        edges = 0
-        centers = 0
-
-        (0...4).each do |i|
-            #points easiest to solve
-            [0,4,9].each do |k|
-                tips+= 1 if @faces[i][k] != i
-            end
-
-            #next is edges
-            [1,3,6].each do |k|
-                edges += 3 if @faces[i][k] != i
-            end
-
-            #finally centers
-            [2,5,7].each do |k|
-                centers += 2 if @faces[i][k] != i
-            end
-        end
-        return (tips/12) + (edges/2) + (centers/2)
-    end
 
 
     def create_clone
@@ -184,7 +161,7 @@ private
 	end
 end
 
-#puzzle = Pyraminx.new
-#puzzle.print
-#puzzle.random_moves(5)
-#puzzle.print
+puzzle = Pyraminx.new
+puzzle.print
+puzzle.rotate! 0, 0
+puzzle.print
