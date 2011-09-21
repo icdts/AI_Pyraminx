@@ -73,20 +73,34 @@ class Solver
 
     def solve!
         q = PriorityQueue.new
+        initial_puzzle = @puzzle
         @puzzle.moves_to_get_here = []
         loops = 0
-        while @puzzle.heuristic != 0
-            #puts "#{@puzzle.heuristic} - #{@puzzle.moves_to_get_here.length}"
-            #puts @puzzle.moves_to_get_here
-            generate_children.each do |child|
-                #puts "child cost: #{(child.heuristic + child.moves_to_get_here.length)}"
-                q.push! child, (child.heuristic + child.moves_to_get_here.length)
-            end
-            #q.bubble_up
-            @puzzle = q.pop!
-            loops += 1
+        cost_limit = 3*@random_moves.length
+        lowest_out_of_bound = nil
 
-            #break if @puzzle.moves_to_get_here.length > @random_moves.length
+        while @puzzle.heuristic != 0
+            current_cost = @puzzle.heuristic + @puzzle.moves_to_get_here.length
+            if current_cost <= cost_limit
+                generate_children.each do |child|
+                    #puts "child cost: #{(child.heuristic + child.moves_to_get_here.length)}"
+                    q.push! child, (child.heuristic + child.moves_to_get_here.length) 
+                end
+            else
+                if lowest_out_of_bound == nil || lowest_out_of_bound > current_cost
+                    lowest_out_of_bound = current_cost 
+                end
+            end
+            @puzzle = q.pop!
+            
+            if @puzzle != nil
+                loops += 1
+            else
+                #ran out of nodes, increase limit, redo
+                @puzzle = initial_puzzle
+                cost_limit = lowest_out_of_bound
+                lowest_out_of_bound = nil
+            end
         end
 
         @solving_moves = @puzzle.moves_to_get_here.clone
@@ -108,7 +122,7 @@ class Solver
         return children
     end
 end
-puts "k,Loops to solve,Solving Count,Random Moves,Solving Moves"
+puts "k,Loops to solve,Solving Count" #,Random Moves,Solving Moves"
 =begin
 k = 2 
 solver = Solver.new(Pyraminx.new)
@@ -123,6 +137,6 @@ puts "#{k}  : " + solver.solve.to_s + " : \n" + solver.random_moves.length.to_s
         solver.randomize! k
         solver.solve!
 
-        puts "#{k},#{solver.expanded_nodes},#{solver.solving_moves.length},\"#{solver.random_moves}\",\"#{solver.solving_moves}\""
+        puts "#{k},#{solver.expanded_nodes},#{solver.solving_moves.length}" #\"#{solver.random_moves}\",\"#{solver.solving_moves}\""
     end
 end

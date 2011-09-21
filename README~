@@ -1,0 +1,33 @@
+My heuristic:
+    I decided that the best way to give an optimistic view of how many turns it would take to solve a given puzzle was to split each face up into three pairs.  Each center has
+a tip attached, and an edge that should match it.  I add
+1 to my heuristic for every tip/edge that is not on the
+same face as its center.  I then divide this value by two,
+since I had a problem where it was cheaper to make a wrong
+move, and then undo it, rather than just not making the
+wrong move in the first place.  Dividing by 2 gives
+moves more wieght in the calculation.  I then noticed I
+was not checking if all centers of the same color where
+on the same face.  So, I arbitrarily picked one of the
+three centers, and add a cost of 1/4 for each of the
+other two if they are not on the same face.
+
+This ends up giving a nice lower bound.  The worst case is
+a heuristic value of 12, which is gaurenteed to be below
+the actual optimal moves necessary, since that is right
+around 12 in real world moves, but my moves are quarter
+turns only, and only in one direction.
+
+The solver:
+I ended up creating a new class for this, rather than
+shoving it all in the Pyraminx class.  I did make use of
+Ruby's open classes, and give the Pyraminx class a few
+extra methods/instance variables though, to make my life
+easier.
+
+I decided I would make the initial cost limit be double
+the number of random moves made.  I...do not know whether
+this was a good choice, honestly.  To be honest, it seems
+to me that in this specific instance it does not end up
+saving enough memory to be worth bothering with, (and in
+fact might not be saving any at all).

@@ -1,0 +1,14 @@
+To run the solver, execute solver.rb.  It outputs in csv format (comma delimited fields).
+
+My heuristic:
+    I decided that the best way to give an optimistic view of how many turns it would take to solve a given puzzle was to split each face up into three pairs.  Each center has a tip attached, and an edge that should match it.  I add one to my heuristic for every tip/edge that is not on the same face as its center.  I then divide this value by two, since I had a problem where it was cheaper to make a wrong move, and then undo it, rather than just not making the wrong move in the first place.  Dividing by 2 gives moves more wieght in the calculation.  I then noticed I was not checking if all centers of the same color where on the same face.  So, I arbitrarily picked one of the three centers, and add a cost of 1/4 for each of the other two if they are not on the same face.
+
+	This ends up giving a nice lower bound.  The worst case is a heuristic value of 12, which is gaurenteed to be below the actual optimal moves necessary, since that is right around 12 in real world moves, but my moves are quarter turns only, and only in one direction.  This heuristic also has the benefit of not caring which exact side the colors end up on, as long as all the sides are uniform.
+
+The solver:
+	I ended up creating a new class for this, rather than shoving it all in the Pyraminx class.  I did make use of Ruby's open classes, and give the Pyraminx class a few extra methods/instance variables though, to make my life easier.  I looked around for a Ruby library that had a priority queue implementation, but didn't find one that I liked.  So, I just created my own, using a binary tree as the heap, and wrapping whatever object is passed in with a Node that holds the object and the value of it.
+
+	I decided I would make the initial cost limit be double the number of random moves made.  I...do not know whether this was a good choice.  To be honest, it seems to me that in this specific instance it does not end up saving enough memory to be worth bothering with, and in fact might not be saving any at all.  It seems like this would continue to be the case regardless of what initial limit was imposed.
+
+What I learned:
+	Just because you've seen something a million times, doesn't mean you can avoid checking it when problems crop up.  I wasted alot of time fooling with my heuristic when it turned out my priority queue implementation was busted (the perils of implementing it yourself).  The main thing I gained from doing this assignment though, was having to come up with a heuristic.  Being told "optimistic, monotonic" is the best didn't really sink in until I had a program that had run for 2 hours and wasn't complete yet (oh, and wasn't even finding the optimal paths for the puzzles it had solved!).  I had thought that the "monotonic" part wouldn't be a big deal, since the path portion would eventually overcome it.  Dumb, dumb, dumb.
